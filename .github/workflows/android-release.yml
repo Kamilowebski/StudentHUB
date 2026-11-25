@@ -1,0 +1,109 @@
+name: Android APK Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Istniejący tag wydania, np. v1.0.0'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-release-${{ inputs.tag || github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    if: github.event_name == 'push' || github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: write
+    env:
+      RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+      SIGNING_CERT_SHA256: 58a15835955812f44b591a53615c2bd0500def94ba88471cc9caef3ddd531ca1
+    steps:
+      - name: Validate release tag
+        shell: bash
+        run: |
+          [[ "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || {
+            echo 'Expected a tag such as v1.0.0' >&2
+            exit 1
+          }
+
+      - name: Check out tagged sources
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: refs/tags/${{ env.RELEASE_TAG }}
+          persist-credentials: false
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Build unsigned APK
+        shell: bash
+        run: |
+          sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
+          ./gradlew --no-daemon assembleRelease
+
+      - name: Sign and verify APK
+        shell: bash
+        env:
+          SIGNING_STORE: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          SIGNING_STORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          SIGNING_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD || secrets.ANDROID_KEYSTORE_PASSWORD }}
+          SIGNING_KEY_ALIAS: ${{ vars.ANDROID_KEY_ALIAS || 'androiddebugkey' }}
+        run: |
+          if [[ -z "$SIGNING_STORE" || -z "$SIGNING_STORE_PASSWORD" ]]; then
+            echo 'Missing ANDROID_KEYSTORE_BASE64 or ANDROID_KEYSTORE_PASSWORD in Actions secrets.' >&2
+            exit 1
+          fi
+
+          umask 077
+          keyfile=$(mktemp "$RUNNER_TEMP/studenthub-keystore.XXXXXX")
+          trap 'rm -f "$keyfile"' EXIT
+          printf '%s' "$SIGNING_STORE" | base64 --decode > "$keyfile"
+          unset SIGNING_STORE
+
+          tools="$ANDROID_HOME/build-tools/35.0.0"
+          apk="$RUNNER_TEMP/StudentHUB-$RELEASE_TAG.apk"
+          "$tools/zipalign" -f 4 app/build/outputs/apk/release/app-release-unsigned.apk "$RUNNER_TEMP/aligned.apk"
+          "$tools/apksigner" sign --ks "$keyfile" --ks-key-alias "$SIGNING_KEY_ALIAS" \
+            --ks-pass env:SIGNING_STORE_PASSWORD --key-pass env:SIGNING_KEY_PASSWORD \
+            --out "$apk" "$RUNNER_TEMP/aligned.apk"
+          digest=$("$tools/apksigner" verify --print-certs "$apk" |
+            awk '/certificate SHA-256 digest/ {print $NF}')
+          if [[ "$digest" != "$SIGNING_CERT_SHA256" ]]; then
+            echo 'The APK is signed with a different certificate than previous StudentHUB releases.' >&2
+            exit 1
+          fi
+
+      - name: Attach APK and publish release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          name="StudentHUB-$RELEASE_TAG.apk"
+          apk="$RUNNER_TEMP/$name"
+          if release=$(gh release view "$RELEASE_TAG" --json isDraft,assets); then
+            if ! jq -e --arg asset "$name" '.assets | any(.name == $asset)' <<< "$release" > /dev/null; then
+              gh release upload "$RELEASE_TAG" "$apk"
+            fi
+            if jq -e '.isDraft' <<< "$release" > /dev/null; then
+              gh release edit "$RELEASE_TAG" --draft=false
+            fi
+          else
+            gh release create "$RELEASE_TAG" "$apk" --verify-tag --generate-notes --title "StudentHUB $RELEASE_TAG"
+          fi
+          gh release view "$RELEASE_TAG" --json isDraft,assets,url |
+            jq -e --arg asset "$name" 'select(.isDraft == false and (.assets | any(.name == $asset))) | .url'

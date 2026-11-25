@@ -22,6 +22,18 @@ W Windows użyj `gradlew.bat assembleDebug`. APK trafi do `app/build/outputs/apk
 
 Pierwsze publiczne wydanie ma tag `v1.0.0`. Aplikacja zachowuje wersję instalacyjną 1.11.3 zgodną z wcześniejszymi kompilacjami.
 
+## Automatyczne wydania
+
+Workflow **Android APK Release** buduje APK z kodu oznaczonego tagiem `vX.Y.Z`, sprawdza certyfikat podpisu i dołącza plik do GitHub Releases. Istniejący tag, np. `v1.0.0`, można wybrać przez **Actions → Android APK Release → Run workflow**, uruchamiając workflow z gałęzi `main`.
+
+W **Settings → Secrets and variables → Actions** dodaj sekrety:
+
+- `ANDROID_KEYSTORE_BASE64` — oryginalny plik klucza podpisu zakodowany jako Base64.
+- `ANDROID_KEYSTORE_PASSWORD` — hasło magazynu klucza.
+- `ANDROID_KEY_PASSWORD` — hasło klucza, jeśli różni się od hasła magazynu.
+
+Jeżeli alias klucza różni się od `androiddebugkey`, ustaw zmienną Actions `ANDROID_KEY_ALIAS`. Zachowaj oryginalny plik klucza w prywatnej kopii. Dla kolejnych wersji zwiększ `versionCode` w `app/build.gradle`, aby Android pozwolił zainstalować aktualizację.
+
 ## Licencja
 
 Kod StudentHUB jest udostępniony na [licencji MIT](LICENSE). Informacje o licencjach bibliotek Android Mail i Android Activation są w [zasobach aplikacji](app/src/main/assets/licenses/).
