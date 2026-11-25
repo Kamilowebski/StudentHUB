@@ -1,0 +1,29 @@
+# Gradle and local Android SDK settings
+.gradle/
+**/build/
+local.properties
+.externalNativeBuild/
+.cxx/
+
+# Editors and operating systems
+.idea/
+*.iml
+.DS_Store
+
+# Signing, credentials and local exports
+*.jks
+*.keystore
+*.p12
+*.pfx
+*.pem
+*keystore.properties
+signing.properties
+secrets.properties
+.env
+.env.*
+!.env.example
+*.apk
+*.aab
+*.idsig
+*.ics
+studenthub-kopia*.json

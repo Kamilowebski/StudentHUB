@@ -1,0 +1,21 @@
+plugins { id 'com.android.application' }
+android {
+    namespace 'pl.studenthub.app'
+    compileSdk 35
+    defaultConfig {
+        applicationId 'pl.studenthub.app'
+        minSdk 26
+        targetSdk 35
+        versionCode 26
+        versionName '1.11.3'
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    packaging { resources { excludes += ['META-INF/LICENSE.md', 'META-INF/NOTICE.md'] } }
+}
+dependencies {
+    implementation 'com.sun.mail:android-mail:1.6.7'
+    implementation 'com.sun.mail:android-activation:1.6.7'
+}

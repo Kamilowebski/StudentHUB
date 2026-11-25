@@ -1,0 +1,3 @@
+<full-backup-content>
+    <include domain="sharedpref" path="organizer.xml" />
+</full-backup-content>
