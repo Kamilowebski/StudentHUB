@@ -229,9 +229,13 @@ function tripProposals(){
  }
  return new Map([...groups].sort(([a],[b])=>a.localeCompare(b)));
 }
+let displayedTripDay;
 function renderTrips(){
- const trips=sorted('zjazdy');
- const proposals=[...tripProposals()].map(([key,proposal])=>{
+ const today=day();
+ displayedTripDay=today;
+ const upcomingTrip=item=>(item.endDate||item.date)>=today;
+ const trips=sorted('zjazdy').filter(upcomingTrip);
+ const proposals=[...tripProposals()].filter(([,proposal])=>upcomingTrip(proposal)).map(([key,proposal])=>{
   const {date,endDate,lessons,trips}=proposal;
   const title=dateText(date)+(endDate?' – '+dateText(endDate):'');
   const action=trips.length>1?'Połącz zjazdy':trips.length?'Przypisz do zjazdu':'Sprawdź i zapisz';
@@ -241,7 +245,7 @@ function renderTrips(){
    '</small></span><span class="end">'+action+'</span></button>';
  });
  $('view').innerHTML=planTabs('zjazdy')+heading('Zjazdy','Terminy zjazdów w aktywnym semestrze.','zjazdy')+
-  '<div class="stack list">'+(trips.length?trips.map(item=>card('zjazdy',item)).join(''):empty('Nie ma jeszcze zapisanych zjazdów.'))+'</div>'+
+  '<div class="stack list">'+(trips.length?trips.map(item=>card('zjazdy',item)).join(''):empty('Brak trwających i nadchodzących zjazdów.'))+'</div>'+
   (proposals.length?'<section class="list class-section"><div class="section-top"><h2>Propozycje z planu</h2></div>'+
    '<div class="stack">'+proposals.join('')+'</div></section>':'');
 }
@@ -646,7 +650,11 @@ render();
 
 function refreshLessonStatus(){
  const route=location.hash;
- if(document.hidden||!['','#start','#plan'].includes(route)||document.querySelector('dialog[open]'))return;
+ if(document.hidden||!['','#start','#plan','#zjazdy'].includes(route)||document.querySelector('dialog[open]'))return;
+ if(route==='#zjazdy'){
+  if(displayedTripDay!==day())render();
+  return;
+ }
  if(lessonStatus(Date.now()).signature!==displayedLessonStatus)render();
 }
 setInterval(refreshLessonStatus,10000);
