@@ -102,7 +102,7 @@ function glyph(name,color='') {return '<span class="glyph '+color+'">'+icon(name
 function heading(title,subtitle,key) {
  return '<div class="heading"><div><h1>'+title+'</h1><p>'+subtitle+'</p></div>'+(key?'<button class="primary" data-add="'+key+'">'+icon('plus')+(key==='subjects'?'Dodaj przedmiot':pages[key][4])+'</button>':'')+'</div>';
 }
-function card(key,item,compact=false,now=Date.now()) {
+function card(key,item,compact=false,now=Date.now(),showHours=false) {
  const active=key==='zajecia'&&lessonInProgress(item,now);
  let title = item.title;
  let detail = shortDay(item.date);
@@ -117,10 +117,18 @@ function card(key,item,compact=false,now=Date.now()) {
   title = dateText(item.date)+(item.endDate&&item.endDate!==item.date?' – '+dateText(item.endDate):'');
   detail = '';
  } else {
-  detail += ' · '+item.status;
+  detail = shortDay(item.date);
   end = key==='platnosci'?Number(item.amount).toLocaleString('pl-PL',{style:'currency',currency:'PLN'}):item.grade||'';
  }
- return '<button class="card'+(active?' lesson-live':'')+'" data-edit="'+key+'" data-id="'+esc(item.id)+'" aria-label="Edytuj '+esc(title)+(active?' · Trwa teraz':'')+'">'+glyph(symbol,color)+'<span class="card-copy"><strong>'+esc(title)+'</strong>'+(active?'<small class="lesson-live-label">Trwa teraz</small>':'')+(detail?'<small>'+esc(detail)+'</small>':'')+'</span><span class="end">'+esc(end)+'</span></button>';
+ const status=['zaliczenia','platnosci'].includes(key)?'<small class="status-chip'+
+  (['Zaliczone','Opłacone'].includes(item.status)?' complete':'')+'">'+esc(item.status)+'</small>':'';
+ const lead=showHours?'<span class="lesson-hours"><b>'+esc(item.time)+'</b>'+
+  (item.endTime?'<small>'+esc(item.endTime)+'</small>':'')+'</span>':glyph(symbol,color);
+ return '<button class="card'+(active?' lesson-live':'')+'" data-edit="'+key+'" data-id="'+esc(item.id)+'" aria-label="Edytuj '+
+  esc(title)+(showHours?' · '+esc(end):'')+(active?' · Trwa teraz':'')+'">'+lead+
+  '<span class="card-copy"><strong>'+esc(title)+'</strong>'+(active?'<small class="lesson-live-label">Trwa teraz</small>':'')+
+  (detail?'<small>'+esc(detail)+'</small>':'')+status+'</span>'+
+  (!showHours&&end?'<span class="end">'+esc(end)+'</span>':'')+'</button>';
 }
 const empty = text => '<p class="empty">'+text+'</p>';
 function home() {
@@ -142,14 +150,14 @@ function home() {
   const item=sorted(key).find(entry=>entry.status!==completed&&entry.date>=day());
   return '<section><div class="section-top"><h3>'+label+'</h3></div>'+(item?card(key,item):empty(message))+'</section>';
  }).join('');
- const hero = next?'<div class="hero-art"><span class="orbit"></span>'+icon('cap')+'</div><div class="hero-label">'+icon('calendar')+'Następne zajęcia</div><h2>'+esc(next.title)+'</h2><div class="hero-meta"><span>'+icon('clock')+esc(shortDay(next.date)+' · '+next.time+(next.endTime?'–'+next.endTime:''))+'</span>'+(place?'<span>'+icon('pin')+esc(place)+'</span>':'')+
+ const hero = next?'<div class="hero-art">'+icon('cap')+'</div><div class="hero-label">'+icon('calendar')+'Następne zajęcia</div><h2>'+esc(next.title)+'</h2><div class="hero-meta"><span>'+icon('clock')+esc(shortDay(next.date)+' · '+next.time+(next.endTime?'–'+next.endTime:''))+'</span>'+(place?'<span>'+icon('pin')+esc(place)+'</span>':'')+
  (minutes?'<span class="hero-countdown">Za '+minutes+' min</span>':'')+(next.teacher?'<span>'+icon('cap')+esc(next.teacher)+'</span>':'')+'</div><a class="hero-button" href="#plan">'+icon('calendar')+'Zobacz plan</a>':
  '<div class="hero-art">'+icon('cap')+'</div><div class="hero-label">'+icon('calendar')+'Następne zajęcia</div><h2>Brak nadchodzących zajęć</h2><button class="hero-button" data-add="subjects">'+icon('plus')+'Dodaj przedmiot</button>';
  const quick = [
-  ['zjazdy','Zjazdy','Terminy zjazdów','blue'],['zaliczenia','Zaliczenia','Terminy i oceny','green'],
-  ['platnosci','Płatności','Terminy opłat','orange']
- ].map(([key,title,copy,color])=>'<a class="tile" href="#'+key+'">'+glyph(pages[key][1],color)+'<strong>'+title+'</strong><small>'+copy+'</small></a>').join('');
- return heading('Twój pulpit','Plan i sprawy studenckie w jednym miejscu.')+
+  ['zjazdy','Zjazdy','blue'],['zaliczenia','Zaliczenia','green'],
+  ['platnosci','Płatności','orange']
+ ].map(([key,title,color])=>'<a class="tile" href="#'+key+'">'+glyph(pages[key][1],color)+'<strong>'+title+'</strong></a>').join('');
+ return heading('Twój pulpit',esc(new Date(now).toLocaleDateString('pl-PL',{weekday:'long',day:'numeric',month:'long'})))+
  ongoing+'<section class="hero">'+hero+'</section>'+
  (tomorrowLessons.length?'<section class="tomorrow-plan"><div class="section-top"><h2>Plan na jutro</h2><a href="#dzien/'+tomorrow+'">Otwórz plan</a></div>'+
  '<div class="stack">'+tomorrowLessons.map(item=>card('zajecia',item,true,now)).join('')+'</div></section>':'')+
@@ -177,7 +185,7 @@ function render() {
  const agendaDate=/^dzien\/(\d{4}-\d{2}-\d{2})$/.exec(hash)?.[1];
  const key = agendaDate?'plan':['poczta','semestry','ustawienia',...settingsSections].includes(hash)||Object.prototype.hasOwnProperty.call(pages,hash)?hash:'start';
  const activeNav=planSections.some(([route])=>route===key)?'zjazdy':key;
- $('nav').innerHTML=mainNav.map(([id,title,symbol])=>'<a class="nav-item" href="#'+id+'"'+(id===activeNav?' aria-current="page"':'')+'>'+icon(symbol)+title+'</a>').join('');
+ $('nav').innerHTML=mainNav.map(([id,title,symbol])=>'<a class="nav-item" href="#'+id+'"'+(id===activeNav?' aria-current="page"':'')+'><span class="nav-glyph">'+icon(symbol)+'</span>'+title+'</a>').join('');
  $('date').textContent = new Date().toLocaleDateString('pl-PL',{weekday:'long',day:'numeric',month:'long'});
  $('semester-link').textContent='Semestr '+data.active;
  const settingsButton=$('settings-link');
@@ -334,12 +342,19 @@ window.importSchedule=({events,skipped,semester})=>{
 function renderSchedule(date){
  const now=Date.now();
  displayedLessonStatus=lessonStatus(now).signature;
- const slots=sorted('zajecia').filter(item=>!date||item.date===date);
+ const groups=new Map();
+ for(const item of sorted('zajecia')){
+  if(date&&item.date!==date)continue;
+  if(!groups.has(item.date))groups.set(item.date,[]);
+  groups.get(item.date).push(item);
+ }
+ const days=[...groups].map(([day,lessons])=>
+  '<section class="agenda-day">'+(date?'':'<h2>'+esc(shortDay(day))+'</h2>')+
+  '<div class="stack">'+lessons.map(item=>card('zajecia',item,true,now,true)).join('')+'</div></section>').join('');
  $('view').innerHTML=planTabs('plan')+(date?heading(date===day(1)?'Plan na jutro':'Plan dnia',esc(dateText(date)))+
   '<div class="android-extra"><a class="text-button" href="#plan">Cały plan semestru</a></div>':
-  heading('Lekcje','Daty, godziny i sale zaplanowanych lekcji.'))+
-  '<section class="list"><div class="section-top"><h2>Zaplanowane lekcje</h2></div><div class="stack">'+
-  (slots.length?slots.map(item=>card('zajecia',item,false,now)).join(''):empty(date?'Brak lekcji w tym dniu.':'Wybierz przedmioty w formularzu zjazdu, aby zaplanować lekcje.'))+'</div></section>';
+  heading('Lekcje',''))+
+  '<div class="list">'+(days||empty(date?'Brak lekcji w tym dniu.':'Dodaj lekcje w zjazdach lub zaimportuj plan w ustawieniach.'))+'</div>';
 }
 function renderSemesters(){
  $('view').innerHTML=heading('Semestry','Wybierz osobny profil dla planu i spraw studenckich.')+

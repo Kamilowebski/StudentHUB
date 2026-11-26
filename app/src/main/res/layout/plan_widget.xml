@@ -7,37 +7,37 @@
     <LinearLayout android:layout_width="match_parent" android:layout_height="0dp"
         android:layout_weight="1" android:gravity="center_vertical" android:orientation="horizontal">
         <TextView android:layout_width="70dp" android:layout_height="wrap_content"
-            android:text="Teraz" android:textColor="#276449" android:textSize="12sp" android:textStyle="bold" />
+            android:text="Teraz" android:textColor="#B8EBD5" android:textSize="12sp" android:textStyle="bold" />
         <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
             android:layout_weight="1" android:orientation="vertical">
             <TextView android:id="@+id/widget_current_title" android:layout_width="match_parent"
                 android:layout_height="wrap_content" android:text="Brak trwających lekcji"
-                android:singleLine="true" android:ellipsize="end" android:textColor="#1D1931"
+                android:singleLine="true" android:ellipsize="end" android:textColor="#FFFFFF"
                 android:textStyle="bold" android:textSize="14sp" />
             <TextView android:id="@+id/widget_current_meta" android:layout_width="match_parent"
                 android:layout_height="wrap_content" android:singleLine="true" android:ellipsize="end"
-                android:textColor="#514760" android:textSize="12sp" />
+                android:textColor="#EBE2FF" android:textSize="12sp" />
         </LinearLayout>
     </LinearLayout>
-    <TextView android:layout_width="match_parent" android:layout_height="1dp" android:background="#E3D9F6" />
+    <TextView android:layout_width="match_parent" android:layout_height="1dp" android:background="#6C5B9F" />
     <LinearLayout android:layout_width="match_parent" android:layout_height="0dp"
         android:layout_weight="1" android:gravity="center_vertical" android:orientation="horizontal">
         <LinearLayout android:layout_width="70dp" android:layout_height="wrap_content" android:orientation="vertical">
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:text="Następne" android:textColor="#5731B4" android:textSize="12sp" android:textStyle="bold" />
+                android:text="Następne" android:textColor="#DCCAFF" android:textSize="12sp" android:textStyle="bold" />
             <Chronometer android:id="@+id/widget_countdown" android:layout_width="wrap_content"
                 android:layout_height="wrap_content" android:visibility="gone"
-                android:textColor="#5731B4" android:textSize="11sp" />
+                android:textColor="#DCCAFF" android:textSize="11sp" />
         </LinearLayout>
         <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
             android:layout_weight="1" android:orientation="vertical">
             <TextView android:id="@+id/widget_next_title" android:layout_width="match_parent"
                 android:layout_height="wrap_content" android:text="Brak zaplanowanych lekcji"
-                android:singleLine="true" android:ellipsize="end" android:textColor="#1D1931"
+                android:singleLine="true" android:ellipsize="end" android:textColor="#FFFFFF"
                 android:textStyle="bold" android:textSize="14sp" />
             <TextView android:id="@+id/widget_next_meta" android:layout_width="match_parent"
                 android:layout_height="wrap_content" android:singleLine="true" android:ellipsize="end"
-                android:textColor="#514760" android:textSize="12sp" />
+                android:textColor="#EBE2FF" android:textSize="12sp" />
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

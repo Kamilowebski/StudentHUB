@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' file:; style-src 'self' file:; img-src 'self' file:; frame-src 'none'; form-action 'none'; base-uri 'none'">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#f7f7fc">
+<meta name="theme-color" content="#f4f5fa">
 <title>StudentHUB — Twój organizer studiów</title>
 <link rel="icon" href="./icon-192.png">
 <link rel="apple-touch-icon" href="./icon-192.png">
@@ -15,7 +15,7 @@
 <body>
 <div class="shell">
 <aside class="sidebar">
-<a class="brand" href="#start"><span class="brand-icon" data-icon="cap"></span><span>Student<span>HUB</span><small>ORGANIZER STUDIÓW</small></span></a>
+<a class="brand" href="#start"><span class="brand-icon" data-icon="cap"></span><span>Student<span>HUB</span></span></a>
 <nav id="nav" aria-label="Nawigacja główna"></nav>
 <a class="mail" href="#poczta"><span data-icon="mail"></span><span>Poczta uczelniana<small>Politechnika Świętokrzyska</small></span></a>
 </aside>
@@ -24,7 +24,7 @@
 <div id="view"></div>
 </main>
 </div>
-<dialog id="editor"><form id="form"><div class="dialog-heading"><h2 id="form-title"></h2><button type="button" class="icon-button" id="close" aria-label="Zamknij" data-icon="close"></button></div><div id="fields"></div><p id="collision-warning" class="notice" role="alert" hidden></p><div class="dialog-actions"><button type="button" class="danger" id="remove">Usuń</button><button class="primary" type="submit">Zapisz</button><button class="text-button" type="submit" id="save-with-collision" hidden>Zapisz mimo kolizji</button></div></form></dialog>
+<dialog id="editor" aria-labelledby="form-title"><form id="form"><div class="dialog-heading"><h2 id="form-title"></h2><button type="button" class="icon-button" id="close" aria-label="Zamknij" data-icon="close"></button></div><div id="fields"></div><p id="collision-warning" class="notice" role="alert" hidden></p><div class="dialog-actions"><button type="button" class="danger" id="remove">Usuń</button><button class="primary" type="submit">Zapisz</button><button class="text-button" type="submit" id="save-with-collision" hidden>Zapisz mimo kolizji</button></div></form></dialog>
 <dialog id="lesson-editor" aria-labelledby="lesson-title"><form id="lesson-form"><div class="dialog-heading"><h2 id="lesson-title"></h2><button type="button" class="icon-button" id="lesson-close" aria-label="Zamknij" data-icon="close"></button></div><div id="lesson-fields"></div><div class="dialog-actions"><button type="button" class="danger" id="lesson-remove">Usuń</button><button class="primary" type="submit">Zapisz lekcję</button></div></form></dialog>
 <dialog id="copy-editor" aria-labelledby="copy-title"><form id="copy-form"><div class="dialog-heading"><h2 id="copy-title">Kopiuj zjazd</h2><button type="button" class="icon-button" id="copy-close" aria-label="Zamknij" data-icon="close"></button></div><div class="copy-fields"><label>Nowy pierwszy dzień<input name="date" type="date" min="0001-01-01" max="9999-12-31" required></label></div><div class="dialog-actions"><button class="primary" type="submit">Przygotuj kopię</button></div></form></dialog>
 <dialog id="delete-editor" aria-labelledby="delete-title"><form id="delete-form"><div class="dialog-heading"><h2 id="delete-title"></h2></div><div class="dialog-actions delete-actions"><button type="button" class="text-button" id="delete-cancel" autofocus>Anuluj</button><button type="submit" class="danger">Usuń</button></div></form></dialog>

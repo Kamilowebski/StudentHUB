@@ -1,0 +1,9 @@
+<resources>
+    <style name="Theme.StudentHUB" parent="android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:colorAccent">#553BC7</item>
+        <item name="android:windowBackground">#F4F5FA</item>
+        <item name="android:statusBarColor">#F4F5FA</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:navigationBarColor">#FFFFFF</item>
+    </style>
+</resources>

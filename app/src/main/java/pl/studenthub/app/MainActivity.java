@@ -52,7 +52,7 @@ public final class MainActivity extends Activity {
         super.onCreate(savedState);
         organizer = getSharedPreferences("organizer", MODE_PRIVATE);
         web = new WebView(this);
-        web.setBackgroundColor(0xfff7f7fc);
+        web.setBackgroundColor(0xfff4f5fa);
         web.getSettings().setJavaScriptEnabled(true);
         web.getSettings().setAllowFileAccess(false);
         web.getSettings().setAllowContentAccess(false);
@@ -65,10 +65,10 @@ public final class MainActivity extends Activity {
             }
         });
         web.addJavascriptInterface(new Bridge(), "Android");
-        final int navigationColor = 0xfff2edff;
+        final int navigationColor = 0xffffffff;
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
-        root.setBackgroundColor(0xfff7f7fc);
+        root.setBackgroundColor(0xfff4f5fa);
         root.addView(web, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1));
         if (Build.VERSION.SDK_INT >= 35) {
             android.view.View navigationInset = new android.view.View(this);
@@ -78,8 +78,10 @@ public final class MainActivity extends Activity {
             root.setOnApplyWindowInsetsListener((view, insets) -> {
                 android.view.WindowInsetsController controller = view.getWindowInsetsController();
                 if (controller != null) controller.setSystemBarsAppearance(
-                        android.view.WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS,
-                        android.view.WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS);
+                        android.view.WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
+                                | android.view.WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS,
+                        android.view.WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
+                                | android.view.WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS);
                 android.graphics.Insets bars = insets.getInsets(android.view.WindowInsets.Type.systemBars()
                         | android.view.WindowInsets.Type.displayCutout());
                 int keyboard = insets.getInsets(android.view.WindowInsets.Type.ime()).bottom;
@@ -94,9 +96,11 @@ public final class MainActivity extends Activity {
             });
         } else {
             getWindow().setNavigationBarColor(navigationColor);
+            getWindow().setStatusBarColor(0xfff4f5fa);
             android.view.View decor = getWindow().getDecorView();
             decor.setSystemUiVisibility(decor.getSystemUiVisibility()
-                    | android.view.View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
+                    | android.view.View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+                    | android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
         }
         setContentView(root);
         web.loadUrl(PAGE + section(getIntent()));
